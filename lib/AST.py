@@ -1,19 +1,26 @@
 import ast
 from ast import *
 import inspect
+try:
+    build_in_functions = [name for name, function in sorted(__builtins__.items()) if inspect.isbuiltin(function) or inspect.isfunction(function)]
+except:
+    build_in_functions = [name for name, function in sorted(vars(__builtins__).items()) if inspect.isbuiltin(function) or inspect.isfunction(function)]
+
+def removeBIF(list):
+    return [i for i in list if i not in build_in_functions]
 
 def Assign(node):
     producers = [value.id for target in node.targets for value in ast.walk(target) if isinstance(value,ast.Name)]
     consumer = [value.id for value in ast.walk(node.value) if isinstance(value,ast.Name)]
-    return producers,consumer
+    return producers,removeBIF(consumer)
 
 def AugAssign(node):
     consumer1 = [node.target.id] if isinstance(node.target,ast.Name) else []
     consumer2 = [node.value.id] if isinstance(node.value,ast.Name) else []
-    return consumer1 + consumer2
+    return removeBIF(consumer1) + removeBIF(consumer2)
 
 def Import(node):
-    producers = [name.name for name in node.names]
+    producers = [name.name if 'asname' not in name.__dict__ else name.asname for name in node.names]
     return producers
 
 def ImportFrom(node):
@@ -22,7 +29,7 @@ def ImportFrom(node):
 
 def Call(node):
     consumers = [arg.id for arg in node.args if isinstance(arg,ast.Name)]
-    return consumers
+    return removeBIF(consumers)
 
 class ASTProvider:
 
@@ -35,6 +42,7 @@ class ASTProvider:
         self.consumers = list()
 
     def build(self,cell_script):
+        print(cell_script)
         ast_nodes = ast.parse(cell_script)
         for node in ast.walk(ast_nodes):
             if isinstance(node,ast.Assign):
@@ -56,18 +64,10 @@ class ASTProvider:
         self.producers = list(set(self.producers))
         self.consumers = list(set(self.consumers))
 
-def f():
-    import random
-    from random import randint
-    a = 20
-    b = randint(1,20)
-    a = a + b + 10
-    c,d = 10,10
-
 if __name__ == "__main__":
 
     astp = ASTProvider()
-    astp.build('print(a,b)')
+    astp.build('a = len(alit)')
 
     print(astp.producers)
     print(astp.consumers)

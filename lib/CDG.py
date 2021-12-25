@@ -31,7 +31,8 @@ class CDG:
         if start.children:
             print(f'{space}{start}')
             for child in start.children:
-                self.show(child,space*2)
+                self.show(child,' '*len(space)+' '*4)
+
 
 if __name__ == "__main__":
     fake = {1:[['random','Image','a'],['a']],2:[['b'],['a','b']],3:[[],['b']],4:[[],['a','b']],5:[[],[]]}
@@ -39,4 +40,4 @@ if __name__ == "__main__":
     cdg = CDG()
     cdg.root = nodes.pop(0)
     cdg.insert(cdg.root,cdg.root.producers,nodes)
-    cdg.show(cdg.root,' ')
+    cdg.show(cdg.root,'    ')

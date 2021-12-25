@@ -1,29 +1,23 @@
-from lib.notebook import Notebook
-from lib.AST import ASTProvider
-from lib.CDG import CDG,Node
+import os
+import sys
+sys.path.insert(0,'./lib/')
+from notebook import Notebook
+from Utils import show_producer_consumer,clean_producer_consumer,generate_cdg
+from CDG import CDG,Node
+from tqdm import tqdm
 
-
+bug_elements = ['!','%']
 
 if __name__ == "__main__":
-    nb_path = "./example/test.ipynb"
+    nb_path = "./example/titanic.ipynb"
     nb = Notebook(nb_path)
-    astp = ASTProvider()
-    cell_map = dict()
-    index = 1
-    for cell in nb.cells_sources:
-        astp.build(''.join(cell))
-        cell_map[index] = [astp.producers,astp.consumers]
-        astp.reset()
+    cell_map = nb.get_producer_consumer()
 
-        index += 1
-    
-    for value,item in cell_map.items():
-        print(f'{value} {item}')
-    
+    # show map
+    show_producer_consumer(cell_map)
 
-    nodes = [Node(cell) for cell in list(cell_map.items())]
-    cdg = CDG()
-    cdg.root = nodes.pop(0)
-    cdg.insert(cdg.root,cdg.root.producers,nodes)
-    cdg.show(cdg.root,' ')
-    
+    # filter map
+    clean_cell_map = clean_producer_consumer(cell_map)
+    show_producer_consumer(clean_cell_map)
+
+    generate_cdg(clean_cell_map)
