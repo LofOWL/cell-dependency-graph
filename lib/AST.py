@@ -73,7 +73,7 @@ class ASTProvider:
 
 def foo():
     for i,j in zip([1,2,3],[1,2,3]):
-        print(i+j)
+        print(str(i))
 
 if __name__ == "__main__":
 

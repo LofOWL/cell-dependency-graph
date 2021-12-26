@@ -1,12 +1,39 @@
 from copy import deepcopy
+from collections import Counter
+
+class GroupNode:
+
+    def __init__(self,*nodes):
+        self.Nodes = list(nodes)
+        self.children = list()
+
+    # condition to group
+    def is_group(self,node):
+        compare = self.Nodes[-1]
+        #return compare.consumers == node.consumers and compare.producers != node.producers
+        return Counter(compare.other_consumers) == Counter(node.other_consumers) or node.other_consumers == []
+
+    def add(self,node):
+            self.Nodes += [node]
+
+    def generate(self):
+        self.cells = [cell.cell for cell in self.Nodes]
+        self.producers = [producer for node in self.Nodes for producer in node.producers]
+        self.consumers = [producer for node in self.Nodes for producer in node.consumers]
+        self.other_consumers = [consumer for consumer in self.consumers if consumer not in self.producers]
+        
+
+    def __str__(self):
+        return ','.join([str(cell.cell) for cell in self.Nodes])
 
 class Node:
 
     def __init__(self,cell):    
-        self.cell = cell[0]
-        self.producers = cell[1][0]
-        self.consumers = cell[1][1]
-        self.other_consumers = [consumer for consumer in self.consumers if consumer not in self.producers]
+        self.cell = cell.index
+        self.producers = cell.producers
+        self.consumers = cell.consumers
+        self.before_producers = cell.before_producers
+        self.other_consumers = cell.other_consumers
         self.children = list()
 
     def __str__(self):
@@ -17,35 +44,54 @@ class CDG:
     def __init__(self):
         self.root = None
 
-    def insert(self,node,producers,cells,cell_map,collect_before_producers):
+    def insert(self,node,producers,cells,cell_map):
         if cells:
             children = list()
+            # find all the children
             for cell in cells:
-                before_p = collect_before_producers(cell_map,cell.cell) 
-                current_producers = [producer for producer in cell.producers if producer not in before_p]
-                if all(consumer in (producers + current_producers) for consumer in cell.consumers):
+                if all(consumer in producers for consumer in cell.other_consumers):
                     children.append(deepcopy(cell))
-            node.children = children
+
+            # grouping the children
+            group_children = list()
             for child in children:
-                self.insert(child,producers + child.producers,[cell for cell in cells if cell.cell != child.cell],cell_map,collect_before_producers)
+                isGroup = False
+                for gc in group_children:
+                    if gc.is_group(child):
+                        gc.add(child)
+                        isGroup = True
+                        break
+                if not isGroup: group_children.append(GroupNode(child)) 
+
+            for i in group_children: 
+                i.generate()
+
+            node.children = group_children
+            for child in node.children:
+                self.insert(child,producers + child.producers,[cell for cell in cells if cell.cell not in child.cells],cell_map)
 
     def show(self,start,space):
-        if start.children:
-            print(f'{space}{start}')
-            for child in start.children:
-                self.show(child,' '*len(space)+' '*4)
+        print(f'{space}{start}')
+        for child in start.children:
+            self.show(child,' '*len(space)+' '*4)
 
     def find(self,start,target,alist):
         if start.children:
-            if start.cell == target: 
-                alist.append(start)
-                return 
+            if isinstance(start,Node):
+                if start.cell == target: 
+                    alist.append(start)
+                    return 
+            else:
+                if target in start.cells:
+                    alist.append(start)
+                    return
             for child in start.children:
                 self.find(child,target,alist) 
 
     def list_all_cells(self,start,alist):
         if start.children:
-            alist += [c.cell for c in start.children]
+            alist += [c.cell for c in start.children if isinstance(c,Node)]
+            alist += [i for c in start.children for i in c.cells if isinstance(c,GroupNode)]
             for child in start.children:
                 self.list_all_cells(child,alist)
 

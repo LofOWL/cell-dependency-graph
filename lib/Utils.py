@@ -1,33 +1,31 @@
 from CDG import CDG,Node
 
 def clean_producer_consumer(cell_map):
-    return {i:j for i,j in cell_map.items() if j[0] and j[1]}
+    return [cell for cell in cell_map if cell.producers or cell.consumers]
 
 def show_producer_consumer(cell_map):
-    for i,j in cell_map.items():
-        print(f"{i} \nP:{j[0]} \nC:{j[1]} \nCC:{j[2]}") 
+    for cell in cell_map: print(cell)
 
-def collect_before_producers(cell_map,index):
-    producers = list()
-    for cell,values in cell_map.items():
-        if index != cell:
-            producers += values[0]
-        else:
-            break
-    return producers
+def collect_before_producers(cell_map):
+    for ccell in cell_map:
+        producers = list()
+        for cell in cell_map:
+            if ccell.index > cell.index:
+                producers += cell.producers
+        ccell.set_before_producers(producers)
+    return cell_map
 
 def generate_cdg(cell_map):
-    nodes = [Node(cell) for cell in list(cell_map.items())]
+    nodes = [Node(cell) for cell in cell_map]
     cdg = CDG()
     cdg.root = nodes.pop(0)
-    cdg.insert(cdg.root,cdg.root.producers,nodes,cell_map,collect_before_producers)
+    cdg.insert(cdg.root,cdg.root.producers,nodes,cell_map)
     # cdg.show(cdg.root,'   ')
     return cdg 
 
 def find_cell_behind(cdg,target):
     find_2 = list()
     cdg.find(cdg.root,target,find_2)
-
     unique = list()    
     for node in find_2:
         node_list = list()
