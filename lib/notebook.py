@@ -17,7 +17,7 @@ class Notebook:
 		index = 1
 		for cell in tqdm(self.cells_sources):
 			astp.build('\n'.join([c for c in cell.split('\n') if c and c[0] not in bug_elements]))
-			cell_map[index] = [astp.producers,astp.consumers]
+			cell_map[index] = [astp.producers,astp.consumers,[i for i in astp.consumers if i not in astp.producers]]
 			astp.reset()
 
 			index += 1

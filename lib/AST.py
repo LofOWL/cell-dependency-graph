@@ -31,6 +31,10 @@ def Call(node):
     consumers = [arg.id for arg in node.args if isinstance(arg,ast.Name)]
     return removeBIF(consumers)
 
+def For(node):
+    producers = [value.id for value in ast.walk(node.target) if isinstance(value,ast.Name)]
+    return producers
+
 class ASTProvider:
 
     def __init__(self):
@@ -42,7 +46,6 @@ class ASTProvider:
         self.consumers = list()
 
     def build(self,cell_script):
-        print(cell_script)
         ast_nodes = ast.parse(cell_script)
         for node in ast.walk(ast_nodes):
             if isinstance(node,ast.Assign):
@@ -59,15 +62,23 @@ class ASTProvider:
             if isinstance(node,ast.Call):
                 con = Call(node)
                 self.consumers += con
+            if isinstance(node,ast.For):
+                pro = For(node)
+                self.producers += pro
+
         
         # remove the duplicate values
         self.producers = list(set(self.producers))
         self.consumers = list(set(self.consumers))
 
+def foo():
+    for i,j in zip([1,2,3],[1,2,3]):
+        print(i+j)
+
 if __name__ == "__main__":
 
     astp = ASTProvider()
-    astp.build('a = len(alit)')
+    astp.build(inspect.getsource(foo))
 
     print(astp.producers)
     print(astp.consumers)
