@@ -15,7 +15,7 @@ class Notebook:
 		astp = ASTProvider()
 		cell_map = dict()
 		index = 1
-		for cell in tqdm(self.cells_sources):
+		for cell in self.cells_sources:
 			astp.build('\n'.join([c for c in cell if c and c[0] not in bug_elements]))
 			cell_map[index] = [astp.producers,astp.consumers]
 			astp.reset()

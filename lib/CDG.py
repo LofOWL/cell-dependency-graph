@@ -21,7 +21,7 @@ class GroupNode:
         self.producers = [producer for node in self.Nodes for producer in node.producers]
         self.consumers = [producer for node in self.Nodes for producer in node.consumers]
         self.other_consumers = [consumer for consumer in self.consumers if consumer not in self.producers]
-        
+
 
     def __str__(self):
         return ','.join([str(cell.cell) for cell in self.Nodes])
@@ -54,14 +54,19 @@ class CDG:
 
             # grouping the children
             group_children = list()
-            for child in children:
-                isGroup = False
-                for gc in group_children:
-                    if gc.is_group(child):
-                        gc.add(child)
-                        isGroup = True
-                        break
-                if not isGroup: group_children.append(GroupNode(child)) 
+            for i in range(len(children)):
+                if i == 0:
+                    group_children.append(GroupNode(children[i]))
+                else:
+                    group_children[0].add(children[i])
+            #for child in children:
+            #    isGroup = False
+            #    for gc in group_children:
+            #        if gc.is_group(child):
+            #            gc.add(child)
+            #            isGroup = True
+            #            break
+            #    if not isGroup: group_children.append(GroupNode(child)) 
 
             for i in group_children: 
                 i.generate()
@@ -76,24 +81,28 @@ class CDG:
             self.show(child,' '*len(space)+' '*4)
 
     def find(self,start,target,alist):
-        if start.children:
-            if isinstance(start,Node):
-                if start.cell == target: 
-                    alist.append(start)
-                    return 
-            else:
-                if target in start.cells:
-                    alist.append(start)
-                    return
-            for child in start.children:
+        if isinstance(start,Node):
+            if start.cell == target: 
+                alist.append(start)
+                return 
+        else:
+            if target in start.cells:
+                alist.append(start)
+                return
+        for child in start.children:
                 self.find(child,target,alist) 
 
     def list_all_cells(self,start,alist):
-        if start.children:
-            alist += [c.cell for c in start.children if isinstance(c,Node)]
-            alist += [i for c in start.children for i in c.cells if isinstance(c,GroupNode)]
-            for child in start.children:
-                self.list_all_cells(child,alist)
+        alist += [c.cell for c in start.children if isinstance(c,Node)]
+        alist += [i for c in start.children for i in c.cells if isinstance(c,GroupNode)]
+        for child in start.children:
+            self.list_all_cells(child,alist)
+
+    def all_nodes(self,start,nodes=list()):
+        nodes.append(start)
+        for child in start.children:
+            nodes += self.all_nodes(child)
+        return nodes
 
 
 if __name__ == "__main__":
