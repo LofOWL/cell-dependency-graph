@@ -72,8 +72,9 @@ class ASTProvider:
         self.consumers = list(set(self.consumers))
 
 def foo():
-    for i,j in zip([1,2,3],[1,2,3]):
-        print(str(i))
+    train_data.shape()
+
+# To-Do: can't handle parameter with .  
 
 if __name__ == "__main__":
 

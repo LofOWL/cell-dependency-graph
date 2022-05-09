@@ -1,6 +1,6 @@
 import json as js
 from AST import ASTProvider
-from tqdm import tqdm
+from Cell import Cell
 
 bug_elements = ['!','%']
 
@@ -13,11 +13,13 @@ class Notebook:
 
 	def get_producer_consumer(self):
 		astp = ASTProvider()
-		cell_map = dict()
+		#cell_map = dict()
+		cell_map = list()
 		index = 1
 		for cell in self.cells_sources:
 			astp.build('\n'.join([c for c in cell if c and c[0] not in bug_elements]))
-			cell_map[index] = [astp.producers,astp.consumers]
+			#cell_map[index] = [astp.producers,astp.consumers]
+			cell_map.append(Cell([index,[astp.producers,astp.consumers]]))
 			astp.reset()
 
 			index += 1

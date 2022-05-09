@@ -1,8 +1,9 @@
 import os
 import sys
 sys.path.insert(0,'./lib/')
-from notebook import Notebook
-from Utils import show_producer_consumer,clean_producer_consumer,generate_cdg
+from Notebook import Notebook
+from Utils import *
+from SnippetCode import SnippetCode
 
 bug_elements = ['!','%']
 
@@ -21,3 +22,6 @@ if __name__ == "__main__":
 
     cdg = generate_cdg(clean_cell_map)
     cdg.show(cdg.root,'   ')
+
+    sc = SnippetCode(clean_cell_map)
+    print(sc.getSnippet(12))
