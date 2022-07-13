@@ -17,7 +17,7 @@ def Assign(node):
 def AugAssign(node):
     consumer1 = [node.target.id] if isinstance(node.target,ast.Name) else []
     consumer2 = [node.value.id] if isinstance(node.value,ast.Name) else []
-    return removeBIF(consumer1) + removeBIF(consumer2)
+    return removeBIF(consumer1),removeBIF(consumer1) + removeBIF(consumer2)
 
 def Import(node):
     producers = [name.name if name.asname == None else name.asname for name in node.names]
@@ -60,8 +60,8 @@ class ASTProvider:
                 pro,con = Assign(node)
                 self.add(pro,con)
             if isinstance(node,ast.AugAssign):
-                con = AugAssign(node)
-                self.add([],con)
+                pro,con = AugAssign(node)
+                self.add(pro,con)
             if isinstance(node,ast.Import):
                 self.add(Import(node),[])
             if isinstance(node,ast.ImportFrom):
@@ -78,7 +78,7 @@ class ASTProvider:
         self.consumers = list(set(self.consumers))
 
 def foo():
-    import os as s
+    a += b
 
 if __name__ == "__main__":
 

@@ -8,7 +8,8 @@ from SnippetCode import SnippetCode
 bug_elements = ['!','%']
 
 if __name__ == "__main__":
-    nb_path = "./example/titanic.ipynb"
+    #nb_path = "./example/titanic.ipynb"
+    nb_path = "./example/test.ipynb"
     nb = Notebook(nb_path)
     cell_map = nb.get_producer_consumer()
     
@@ -24,5 +25,6 @@ if __name__ == "__main__":
     cdg.show(cdg.root,'   ')
 
     sc = SnippetCode(clean_cell_map)
-    psnippet,prsnippet = sc.rankSnippet(sc.getSnippet(12))
+    print(sc.getSnippet(5))
+    psnippet,prsnippet = sc.rankSnippet(sc.getSnippet(4))
     print(psnippet)
