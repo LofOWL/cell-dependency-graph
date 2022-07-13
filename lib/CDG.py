@@ -7,8 +7,6 @@ class Node:
         self.cell = cell.index
         self.producers = cell.producers
         self.consumers = cell.consumers
-        self.before_producers = cell.before_producers
-        self.other_consumers = cell.other_consumers
         self.children = list()
 
     def __str__(self):
@@ -24,13 +22,11 @@ class GroupNode:
         self.cells = [cell.cell for cell in self.Nodes]
         self.producers = [producer for node in self.Nodes for producer in node.producers]
         self.consumers = [producer for node in self.Nodes for producer in node.consumers]
-        self.other_consumers = [consumer for consumer in self.consumers if consumer not in self.producers]
 
     # condition to group
     def is_group(self,node):
         compare = self.Nodes[-1]
-        #return compare.consumers == node.consumers and compare.producers != node.producers
-        return Counter(compare.other_consumers) == Counter(node.other_consumers) or node.other_consumers == []
+        return Counter(compare.consumers) == Counter(node.consumers) or node.consumers == []
 
     def __add__(self,node):
             self.Nodes += [node]
@@ -48,7 +44,7 @@ class CDG:
             children = list()
             # find all the children
             for cell in cells:
-                if all(consumer in producers for consumer in cell.other_consumers):
+                if all(consumer in producers for consumer in cell.consumers):
                     children.append(deepcopy(cell))
 
             # grouping the children

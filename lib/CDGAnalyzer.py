@@ -23,11 +23,5 @@ class CDGAnalyzer:
 
         return constraints_count
 
-
-
-
-
-
-
 if __name__ == "__main__":
     print("CDG Analyzer")

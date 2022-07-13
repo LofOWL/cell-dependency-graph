@@ -11,9 +11,9 @@ if __name__ == "__main__":
     nb_path = "./example/titanic.ipynb"
     nb = Notebook(nb_path)
     cell_map = nb.get_producer_consumer()
-
+    
     # show map
-    # show_producer_consumer(cell_map)
+    show_producer_consumer(cell_map)
 
     # filter map
     clean_cell_map = clean_producer_consumer(cell_map)

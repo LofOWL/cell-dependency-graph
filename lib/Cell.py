@@ -1,19 +1,26 @@
+from AST import ASTProvider
 
+bug_elements = ['!','%']
 
 class Cell:
 
-    def __init__(self,item):
-        self.index = item[0]
-        self.producers = item[1][0]
-        self.consumers = item[1][1]
-        self.before_producers = list()
-        self.tmp_producers = [producer for producer in self.producers if producer not in self.before_producers]
-        self.other_consumers = [consumer for consumer in self.consumers if consumer not in self.tmp_producers]
+    def __init__(self):
+        self.index = -1
+        self.producers = list()
+        self.consumers = list()
 
-    def set_before_producers(self,alist):
-        self.before_producers = alist
-        self.tmp_producers = [producer for producer in self.producers if producer not in self.before_producers]
-        self.other_consumers = [consumer for consumer in self.consumers if consumer not in self.tmp_producers]
+    def set_producers_consumers(self,producers,consumers):
+        self.producers = producers
+        self.consumers = consumers
+
+    def set_index(self,index):
+        self.index = index
 
     def __str__(self):
-        return f"{self.index} \nP:{self.producers} \nC:{self.consumers} \nCC:{self.other_consumers} \nBP:{self.before_producers}"
+        return f"{self.index} \nP:{self.producers} \nC:{self.consumers}"
+
+
+if __name__ == "__main__":
+    #notebook = "/Users/root1/Desktop/cell-dependency-graph/example/test.ipynb"
+    c = Cell()
+    c.generate_producers_consumers(['train_data = pd.get_dummies(train_data, columns=["Embarked"])'])

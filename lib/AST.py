@@ -20,7 +20,7 @@ def AugAssign(node):
     return removeBIF(consumer1) + removeBIF(consumer2)
 
 def Import(node):
-    producers = [name.name if 'asname' not in name.__dict__ else name.asname for name in node.names]
+    producers = [name.name if name.asname == None else name.asname for name in node.names]
     return producers
 
 def ImportFrom(node):
@@ -33,7 +33,8 @@ def Call(node):
 
 def For(node):
     producers = [value.id for value in ast.walk(node.target) if isinstance(value,ast.Name)]
-    return producers
+    consumers = [value.id for value in ast.walk(node.iter) if isinstance(value,ast.Name)]
+    return producers,consumers
 
 class ASTProvider:
 
@@ -45,36 +46,39 @@ class ASTProvider:
         self.producers = list()
         self.consumers = list()
 
+    def add(self,producers,consumers):
+        for consumer in consumers:
+            if consumer not in self.producers:
+                self.consumers.append(consumer)
+        self.producers += producers
+
     def build(self,cell_script):
         ast_nodes = ast.parse(cell_script)
+        lines = 0
         for node in ast.walk(ast_nodes):
             if isinstance(node,ast.Assign):
                 pro,con = Assign(node)
-                self.producers += pro
-                self.consumers += con
+                self.add(pro,con)
             if isinstance(node,ast.AugAssign):
                 con = AugAssign(node)
-                self.consumers += con
+                self.add([],con)
             if isinstance(node,ast.Import):
-                self.producers += Import(node)
+                self.add(Import(node),[])
             if isinstance(node,ast.ImportFrom):
-                self.producers += ImportFrom(node)
+                self.add(ImportFrom(node),[])
             if isinstance(node,ast.Call):
-                con = Call(node)
-                self.consumers += con
+                self.add([],Call(node))
             if isinstance(node,ast.For):
-                pro = For(node)
-                self.producers += pro
-
+                pro,con = For(node)
+                self.add(pro,con)
+            lines += 1
         
         # remove the duplicate values
         self.producers = list(set(self.producers))
         self.consumers = list(set(self.consumers))
 
 def foo():
-    train_data.shape()
-
-# To-Do: can't handle parameter with .  
+    import os as s
 
 if __name__ == "__main__":
 

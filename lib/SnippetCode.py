@@ -9,7 +9,7 @@ class SnippetCode:
         if not cell: return False
         cellBefore = list(filter(lambda x: x < cellIndex,list(self.hashmap.keys())))
         cellBefore.reverse()
-        combinations = self.dfs(cellBefore,cell.other_consumers)
+        combinations = self.dfs(cellBefore,cell.consumers)
         return [[cellIndex]+combination for combination in combinations] 
 
     def dfs(self,cellBefore,consumers):
