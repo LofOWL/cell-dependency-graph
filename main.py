@@ -24,4 +24,5 @@ if __name__ == "__main__":
     cdg.show(cdg.root,'   ')
 
     sc = SnippetCode(clean_cell_map)
-    print(sc.getSnippet(12))
+    psnippet,prsnippet = sc.rankSnippet(sc.getSnippet(12))
+    print(psnippet)

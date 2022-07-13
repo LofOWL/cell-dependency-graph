@@ -11,6 +11,18 @@ class SnippetCode:
         cellBefore.reverse()
         combinations = self.dfs(cellBefore,cell.consumers)
         return [[cellIndex]+combination for combination in combinations] 
+    
+    def rankSnippet(self,combinations):
+        perfect_snippet, problem_snippet = list(),list()
+        for combination in combinations:
+            count = len([i for i in combination if type(i) != int])
+            if count == 0:
+                perfect_snippet.append(combination)
+            else:
+                problem_snippet.append([count,combination])
+        problem_snippet.sort(key=lambda x:x[0])
+        problem_snippet = [i[1] for i in problem_snippet]
+        return perfect_snippet,problem_snippet
 
     def dfs(self,cellBefore,consumers):
         if not consumers:
